@@ -1,0 +1,49 @@
+// ITEM.DAT contains item settings
+
+struct ITEM {
+    short cost;
+    short type;
+    short power;
+    char equip_by; // One bit per actor, 1st actor LSB
+    char unk;
+    char name[20];
+} item[100]; // constant
+
+// types
+// http://stifu.free.fr/dl/rpg95/faqs/item-dat_magic-dat.txt
+
+/*
+0000 - weapon
+0100 - armor
+0200 - shield
+0300 - helmet
+0400 - other items
+0500 - special
+0600 - hp up
+0700 - mp up
+0800 - detx
+0900 - stat rcvr
+0A00 - faint rcvr
+0B00 - max hp up
+0C00 - max mp up
+0D00 - powr up
+0E00 - str up
+0F00 - int up
+1000 - speed up
+1100 - luck up
+1200 - 1st spell from list
+1300 - 2nd spell from list
+1400 - 3rd spell from list
+1500 - 4th spell from list
+1600 - 5th spell from list
+1700 - 6th spell from list
+1800 - 7th spell from list
+1900 - 8th spell from list
+1A00 - 9th spell from list
+1B00 - 10th spell from list
+1C00 - 11th spell from list
+1D00 - 12th spell from list
+1E00 - 13th spell from list
+1F00 - 14th spell from list
+until 7500 which stands for 100th spell in list.
+*/

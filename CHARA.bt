@@ -1,0 +1,28 @@
+// CHARA.DAT contains enemy attributes
+struct CHARA {
+    int _320000h <format=hex>;
+    short unk2_0;
+    short hp;
+    short unk3_0;
+    short unk4_50;
+    short mp;
+    short unk5_10;
+    short unk6_10;
+    short agi;
+    short unk7_10;
+    short unk8_10;
+    short defense;
+    short attack;
+    short unk9_0;
+    int exp;
+    int gold;
+    char item;
+    char item_probability;
+    short unk10_0;
+    short unk11_0;
+    char name[18];
+    char unk12_0[3];
+    char magic_damage_perc[100];
+    char attack_pattern[10]; // 1-based
+    char unk13_0[9];
+} chara[100];

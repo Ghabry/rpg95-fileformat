@@ -1,0 +1,229 @@
+// EVE%05d.dat contains the event data (where %05d is the ID)
+// 00000 = Start event
+// 99999 = Game Over event
+
+// ToDo: Command arguments
+
+enum <int> CommandType {
+    ShowMessage = 1,
+    ChangeSwitch = 15,
+    ShowChoice = 2,
+    ChoiceOption = 12,
+    EndChoice = 3,
+    Teleport = 5,
+    Shop = 28,
+    Inn = 27,
+    EnterVehicle = 47,
+    BringVehicle = 48,
+    ReturnVehicle = 54,
+    ShowPic = 26,
+    RemovePicture = 31,
+    Effect = 29,
+    PlayBGM = 6,
+    OriginalBGM = 32,
+    SoundEffect = 21,
+    PlayMovie = 14,
+    ChangeTransition = 50,
+    ChangeBGM = 49,
+    SetHp = 16,
+    SetMp = 17,
+    IncreaseHpMp = 24,
+    ChangeStat = 22,
+    ChangeExp = 11,
+    ChangeLevel = 19,
+    ChangeItem = 20,
+    LearnSkill = 18,
+    ChangeMoney = 10,
+    ChangeParty = 23,
+    SetHeroMoveRoute = 33,
+    ChangeHeroGraphic = 40,
+    ResetHeroGraphic = 51,
+    ChangeHeroSpeed = 41,
+    ChangeHeroType = 53,
+    SetEventMoveRoute = 35,
+    ChangeEventGraphic = 42,
+    ChangeEventSpeed = 43,
+    ChangeEventMotion = 44,
+    DisableControl = 36,
+    StopAllMovement = 38,
+    RestoreMovement = 39,
+    BeginEncounter = 4,
+    AddTeleport = 45,
+    DisableTeleport = 46,
+    DisableEscape = 34,
+    Wait = 13,
+    SaveGame = 52,
+    EndGame = 30,
+    End = 0
+};
+
+enum <char> MoveRoute {
+    MoveUp = 0,
+    MoveRight = 1,
+    MoveDown = 2,
+    MoveLeft = 3,
+    TurnUp = 4,
+    TurnRight = 5,
+    TurnDown = 6,
+    TurnLeft = 7,
+    MoveTowardsHero = 8,
+    MoveAwayFromHero = 9,
+    MoveTowardsEvent = 10, // Needs testing ???
+    MoveAwayFromEvent = 11, // ???
+    TurnTowardsHero = 12,
+    TurnAwayFromHero = 13,
+    TurnTowardsEvent = 14, // ???
+    TurnAwayFromEvent = 15, // ???
+    MoveForward = 16,
+    MoveWait = 17,
+    AnimationNormal = 18,
+    AnimationSpinRight = 19,
+    AnimationSpinLeft = 20,
+    AnimationSpinRandom = 21,
+    AnimationSameDirection = 22, // ???
+    AnimationNone = 23,
+    SpriteOpaque = 24,
+    SpriteTransparent = 25,
+    SpriteHidden = 26,
+    Loop = 27, // Moves back and forth?
+    Reverse = 29,
+    ReverseLoop = 30,
+    EndMove = 32
+};
+
+typedef struct EventCommand {
+    CommandType cmd;
+    int arg1; // MsgBox: Index in string list
+    int arg2;
+    int arg3;
+    int arg4;
+} eventcmd <optimize=false>;
+
+struct StringField {
+    char idx;
+    string str;
+};
+
+typedef struct MoveField {
+    char size;
+    if (size > 0) {
+        MoveRoute route[size];
+    }
+};
+
+typedef struct EventCondition {
+    int item_bit : 1;
+    int gold_bit : 2;
+    int switch_bit : 4;
+    int party_bit : 8;
+};
+
+enum <char> StartCondition {
+    OnAction = 0,
+    OnTouch = 1,
+    AutoRun = 2
+};
+
+enum <char> Layer {
+    Below = 0,
+    Same = 1,
+    Above = 2
+};
+
+enum <char> CharType {
+    Walking = 0,
+    Wagon = 1,
+    Sled = 2,
+    Boat = 3,
+    Ship = 4,
+    Ballon = 5,
+    Airship = 6
+};
+
+enum <char> EventMoveType {
+    DontMove = 0,
+    FollowHero = 1,
+    EvadeHero = 2,
+    Random = 3
+};
+
+enum <char> EventDisplay {
+    DispNormal = 0x19,
+    DispTransparent = 0x1A,
+    DispInvisible = 0x1B
+};
+
+enum <char> AnimationType {
+    AnimNormal = 0x12,
+    AnimLeftTurn = 0x13,
+    AnimRightTurn = 0x14,
+    AnimRandom = 0x15,
+    AnimSameDir = 0x16,
+    AnimNone = 0x17,
+    AnimStop = 0x18
+};
+
+struct EVENT {
+    char start[12];
+    StartCondition start_cond[4];
+    char unk[4];
+    EventCondition flag[3]; // 4 bits, from LSB
+    EventDisplay evt_disp[4];
+    Layer layer[4];
+    EventMoveType move_type[4];
+    AnimationType anim_type[4];
+    char speed[4];
+    char pad3;
+    CharType type[4];
+    char unk2;
+    short condition_item[3];
+    char unk3;
+    char condition_party[3]; // 1 bit per actor, 1st LSB
+    int condition_gold[3];
+    short unk4[3];
+    short condition_switch[3];
+    short event_graphic[4];
+    char unk9[16]; // changes everytime when saved
+    int page_size[4];
+    int extrasize; // Size of stringlist + moveroutes
+    MoveField move_route[4] <optimize=false>;
+    EventCommand page1[page_size[0]];
+    EventCommand page2[page_size[1]];
+    EventCommand page3[page_size[2]];
+    EventCommand page4[page_size[3]];
+    
+    // String list of format:
+    // char idx (increments)
+    // zero-terminated string
+    local int pos = FTell();
+    local int fields = 0;
+    local int len = 0;
+    while (ReadByte() != 0x1A) {
+        FSeek(FTell() + 1);
+        if (ReadByte() == 0x1A) {
+            break;
+        }
+        ++fields;
+        len = ReadStringLength(FTell());
+        FSeek(FTell() + len);
+    }
+    FSeek(pos);
+    StringField strings[fields] <optimize=false>;
+
+    char unk_1A; // signals end of string-list?
+    
+    pos = FTell();
+    fields = 0;
+    while (!FEof()) {
+        len = ReadByte();
+        FSeek(FTell() + len + 1);
+        fields++;
+    }
+    FSeek(pos);
+
+    // Move Routes of format:
+    // size
+    // move commands[size]
+    // until EOF
+    MoveField move_routes[fields] <optimize=false>;
+} event;

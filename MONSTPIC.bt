@@ -1,0 +1,14 @@
+// MONSTPIC.DAT contains monster pictures
+typedef struct rgb {
+    uchar r;
+    uchar g;
+    uchar b;
+    uchar a;
+};
+
+struct MONSTPIC {
+    short width;
+    short height;
+    char image[width*height];
+    rgb palette[1024 / 4];
+} monstpic[50] <optimize=false>; // dynamic, until EOF

@@ -1,0 +1,23 @@
+STRINGS.DAT: 150 Strings, one per line
+SWNAME.DAT: 1000 Switch names, one per line, unused by GAME.EXE
+PARAM.DAT: Unknown. Not used by GAME.EXE
+COPYBUF.BAT: Clipboard? Not used by GAME.EXE
+
+*.ATR: width*height, 1 byte per attribute
+
+Attributes:
+
+Flat = 0
+Marsh = 1
+Snowy = 2
+Forest = 3
+River = 4
+ShallowRapids = 5
+Sea = 6
+Mountain = 7
+SteepMountain = 8
+Tower = 9
+Floor = 10
+Entrance = 11
+Obstacle = 12
+Desk/Chair = 13

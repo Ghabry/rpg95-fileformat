@@ -1,0 +1,86 @@
+// *.RPG file contains audio settings, actors, map tree and maps
+
+// ToDo: Most actor data, structure of map tree
+
+typedef struct StrItem {
+    int audio_type;
+    local string t = ReadLine(FTell(), -1, false);
+    char text[Strlen(t)];
+    int unk;
+    char unk3;
+} audioitem <optimize=false>;
+
+typedef struct Audio {
+    StrItem walking;
+    StrItem wagon;
+    StrItem sled;
+    StrItem boat;
+    StrItem ship;
+    StrItem balloon;
+    StrItem airship;
+    StrItem coobat_start;
+    StrItem combat;
+    StrItem victory;
+    StrItem level_up;
+    StrItem rest;
+} audio_ <optimize=false>;
+
+typedef struct Actor {
+    int unk;
+    int unk2;
+    char name[18];
+    short unk3;
+    short level;
+    char padding[902];
+    char pad;
+} actor <optimize=false>;
+
+typedef struct Tile {
+    local string t = ReadLine(FTell(), -1, false);
+    char text[Strlen(t)];
+    char cr;
+} tile <optimize=false>;
+
+typedef struct Map {
+    int map_id;
+    char map_name[18];
+    char unk[7];
+    int looping;
+    char unk2[8];
+    short width;
+    short height;
+    char map_tree[40]; // not sure
+    local string tile1 = ReadLine(FTell(), -1, false);
+    Tile tilemap_names[4] <optimize=false>;
+    short tiles[width * height]; // value = tile ID
+    local short evt_cnt = 0;
+    while (ReadUShort() <= 0x7FFF) {
+        evt_cnt++;
+        FSeek(FTell() + 2);
+    }
+    FSeek(FTell() - evt_cnt * 2);
+    short evt_tiles[evt_cnt]; // value = event ID
+    ushort missing_events; // -0x7FFF
+} map <optimize=false>;
+
+struct RPG {
+    char header[30];
+    char version;
+    int unk;
+    int unk2;
+    Audio audio;
+    int unk3;
+    int unk4;
+    char coin_name[21];
+    short item_max;
+    short unk5;
+    short msg_speed;
+    short game_options; // bit-field: 1 Window transp, 2 save enabled
+    Actor actors[8];
+    char unk7[200];
+    int unk8;
+    int start_map;
+    int start_x;
+    int start_y;
+    Map maps[3] <optimize=false>; // dynamic, until EOF
+} rpg;

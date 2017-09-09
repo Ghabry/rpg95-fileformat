@@ -1,0 +1,16 @@
+// EPARTY.DAT contains monster party settings
+typedef struct Monster {
+    int id;
+    int x;
+    int y;
+};
+
+struct EPARTY {
+    short background;
+    short terrain;
+    int active_monsters;
+    Monster monsters[10];
+    int unk2[30];
+    char unk3;
+    char unk4;
+} eparty[128]; // constant

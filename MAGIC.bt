@@ -1,0 +1,36 @@
+// MAGIC.DAT contains magic settings
+struct MAGIC {
+    short type;
+    short unk;
+    short mp_cost;
+    short power;
+    char name[20];
+} magic[100]; // constant
+
+// types
+// http://stifu.free.fr/dl/rpg95/faqs/item-dat_magic-dat.txt
+
+/*
+00 – Damage One
+01 – Damage All
+02 – Poison
+03 – Paralyze
+04 – Mute
+05 – Confuse
+06 – Sleep
+07 – Unconcious
+08 – Attack Down
+09 – Defense Down
+0A – Speed Down
+0B – Hp Heal One
+0C – Hp Heal All
+0D – Mp Heal (One)
+0E – Detx (odtrutka)
+0F – Stat Rcvr
+10 – Revive
+11 – Attack Up
+12 – Defense Up
+13 – Speed Up
+14 – Teleport
+15 – Escape
+*/
