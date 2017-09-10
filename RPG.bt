@@ -41,6 +41,19 @@ typedef struct Tile {
     char cr;
 } tile <optimize=false>;
 
+typedef struct EncounterRate {
+    uchar party;
+    uchar rate; // From 0 to 200?
+};
+
+typedef struct MapEvent {
+    short evt_id : 8; // File EVT%05d.DAT
+    short meta : 7;
+    // When MSB is 1, evt_id is the "gap size" (tiles w/o event)
+    // on the map
+    short skip : 1; 
+};
+
 typedef struct Map {
     int map_id;
     char map_name[18];
@@ -49,18 +62,40 @@ typedef struct Map {
     char unk2[8];
     short width;
     short height;
-    char map_tree[40]; // not sure
-    local string tile1 = ReadLine(FTell(), -1, false);
+    char map_tree[20]; // not sure
+    EncounterRate enc_rate[10];
     Tile tilemap_names[4] <optimize=false>;
     short tiles[width * height]; // value = tile ID
+
+    // Event parsing is tricky, why didn't they use width * height
+    // The upper byte is metadata
+    // The lower byte is the event number
+
     local short evt_cnt = 0;
-    while (ReadUShort() <= 0x7FFF) {
+    local short map_offset = 0;
+    local short skip = 0;
+
+    // All the ReadXXX commands don't alter the read-pos
+    // Parse until "missing events" marker
+    while ((short)((int)ReadUShort() - 0x7FFF - width * height + map_offset) != 0) {
         evt_cnt++;
-        FSeek(FTell() + 2);
+        map_offset++;
+        
+        skip = (uchar)ReadByte();
+        FSeek(FTell() + 1);
+        if ((uchar)ReadByte()) {
+            // Skip bit set, skip event "gap"
+            map_offset += skip;
+        }
+        FSeek(FTell() + 1);
     }
     FSeek(FTell() - evt_cnt * 2);
-    short evt_tiles[evt_cnt]; // value = event ID
-    ushort missing_events; // -0x7FFF
+
+    if (evt_cnt > 0) {
+        MapEvent evt_tiles[evt_cnt];
+    }
+    // missing_events = 0x7FFF + "tiles w/o events until end of map"
+    short missing_events;
 } map <optimize=false>;
 
 struct RPG {
