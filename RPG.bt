@@ -71,48 +71,63 @@ typedef struct MapEvent {
     short skip : 1; 
 };
 
+typedef struct MapType {
+    int looping : 1;
+    int area : 1;
+};
+
 typedef struct Map {
     int map_id;
     char map_name[18];
     char unk[7];
-    int looping;
-    char unk2[8];
+    MapType map_type;
+    int area_begin_x;
+    int area_end_x;
     short width;
     short height;
-    char map_tree[20]; // not sure
+    int parent_id;
+    // ??? Editor only. Map disappears from tree when modified
+    int tree_order;
+    char unk2[4];
+    // What is area exit point?
+    int area_exit_x;
+    int area_exit_y;
     EncounterRate enc_rate[10];
-    Tile tilemap_names[4] <optimize=false>;
-    short tiles[width * height]; // value = tile ID
 
-    // Event parsing is tricky, why didn't they use width * height
-    // The upper byte is metadata
-    // The lower byte is the event number
-
-    local short evt_cnt = 0;
-    local short map_offset = 0;
-    local short skip = 0;
-
-    // All the ReadXXX commands don't alter the read-pos
-    // Parse until "missing events" marker
-    while ((short)((int)ReadUShort() - 0x7FFF - width * height + map_offset) != 0) {
-        evt_cnt++;
-        map_offset++;
-        
-        skip = (uchar)ReadByte();
-        FSeek(FTell() + 1);
-        if ((uchar)ReadByte()) {
-            // Skip bit set, skip event "gap"
-            map_offset += skip;
+    if (map_type.area == 0) {
+        Tile tilemap_names[4] <optimize=false>;
+        short tiles[width * height]; // value = tile ID
+    
+        // Event parsing is tricky, why didn't they use width * height
+        // The upper byte is metadata
+        // The lower byte is the event number
+    
+        local short evt_cnt = 0;
+        local short map_offset = 0;
+        local short skip = 0;
+    
+        // All the ReadXXX commands don't alter the read-pos
+        // Parse until "missing events" marker
+        while ((short)((int)ReadUShort() - 0x7FFF - width * height + map_offset) != 0) {
+            evt_cnt++;
+            map_offset++;
+            
+            skip = (uchar)ReadByte();
+            FSeek(FTell() + 1);
+            if ((uchar)ReadByte()) {
+                // Skip bit set, skip event "gap"
+                map_offset += skip;
+            }
+            FSeek(FTell() + 1);
         }
-        FSeek(FTell() + 1);
+        FSeek(FTell() - evt_cnt * 2);
+    
+        if (evt_cnt > 0) {
+            MapEvent evt_tiles[evt_cnt];
+        }
+        // missing_events = 0x7FFF + "tiles w/o events until end of map"
+        short missing_events;
     }
-    FSeek(FTell() - evt_cnt * 2);
-
-    if (evt_cnt > 0) {
-        MapEvent evt_tiles[evt_cnt];
-    }
-    // missing_events = 0x7FFF + "tiles w/o events until end of map"
-    short missing_events;
 } map <optimize=false>;
 
 struct RPG {
@@ -138,5 +153,5 @@ struct RPG {
     int start_map;
     int start_x;
     int start_y;
-    Map maps[3] <optimize=false>; // dynamic, until EOF
+    Map maps[7] <optimize=false>; // dynamic, until EOF
 } rpg;
