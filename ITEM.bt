@@ -1,11 +1,13 @@
 // ITEM.DAT contains item settings
 
+// Should be complete according to the Editor interface
+
 struct ITEM {
     short cost;
     short type;
     short power;
     char equip_by; // One bit per actor, 1st actor LSB
-    char unk;
+    char padding;
     char name[20];
 } item[100]; // constant
 

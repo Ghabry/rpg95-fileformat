@@ -1,4 +1,13 @@
 // EPARTY.DAT contains monster party settings
+
+// Encounter rate is part of the map
+
+// Missing:
+// Palette swap (GUI doesn't work here, hard to test)
+
+// Is BattleTest a temporary setting?
+// Is reset after closing the editor..
+
 typedef struct Monster {
     int id;
     int x;
@@ -8,7 +17,7 @@ typedef struct Monster {
 struct EPARTY {
     short background;
     short terrain;
-    int active_monsters;
+    int active_monsters; // bitflag, LSB
     Monster monsters[10];
     int unk2[30];
     char unk3;

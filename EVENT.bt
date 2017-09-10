@@ -2,6 +2,8 @@
 // 00000 = Start event
 // 99999 = Game Over event
 
+// Should be complete according to the Editor interface
+
 // ToDo: Command arguments
 
 enum <int> CommandType {
@@ -113,9 +115,9 @@ typedef struct MoveField {
 
 typedef struct EventCondition {
     int item_bit : 1;
-    int gold_bit : 2;
-    int switch_bit : 4;
-    int party_bit : 8;
+    int gold_bit : 1;
+    int switch_bit : 1;
+    int party_bit : 1;
 };
 
 enum <char> StartCondition {

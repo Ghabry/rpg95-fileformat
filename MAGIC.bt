@@ -1,4 +1,7 @@
 // MAGIC.DAT contains magic settings
+
+// Should be complete according to the Editor interface
+
 struct MAGIC {
     short type;
     short unk;

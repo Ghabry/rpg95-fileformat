@@ -1,4 +1,8 @@
 // CHARA.DAT contains enemy attributes
+
+// Should be complete according to the Editor interface
+// altering the unknown data has no effect.
+
 struct CHARA {
     int _320000h <format=hex>;
     short unk2_0;
