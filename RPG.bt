@@ -64,11 +64,15 @@ typedef struct EncounterRate {
 };
 
 typedef struct MapEvent {
-    short evt_id : 8; // File EVT%05d.DAT
-    short meta : 7;
+    local short val = ReadUShort();
+    if (ReadUShort() & 0x8000) {
+        short tiles_to_skip : 15;
+    } else {
+        short evt_id : 15; // File EVT%05d.DAT
+    }
     // When MSB is 1, evt_id is the "gap size" (tiles w/o event)
     // on the map
-    short skip : 1; 
+    short skip_bit : 1; 
 };
 
 typedef struct MapType {
@@ -111,19 +115,17 @@ typedef struct Map {
         while ((short)((int)ReadUShort() - 0x7FFF - width * height + map_offset) != 0) {
             evt_cnt++;
             map_offset++;
-            
-            skip = (uchar)ReadByte();
-            FSeek(FTell() + 1);
-            if ((uchar)ReadByte()) {
+
+            if ((uchar)ReadByte(FTell() + 1)) {
                 // Skip bit set, skip event "gap"
-                map_offset += skip;
+                map_offset += (ReadUShort() - 0x8000);
             }
-            FSeek(FTell() + 1);
+            FSeek(FTell() + 2);
         }
         FSeek(FTell() - evt_cnt * 2);
     
         if (evt_cnt > 0) {
-            MapEvent evt_tiles[evt_cnt];
+            MapEvent evt_tiles[evt_cnt] <optimize=false>;
         }
         // missing_events = 0x7FFF + "tiles w/o events until end of map"
         short missing_events;
