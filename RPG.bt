@@ -1,6 +1,6 @@
 // *.RPG file contains audio settings, actors, map tree and maps
 
-// ToDo: Most actor data, structure of map tree
+// ToDo: Some actor data, structure of map tree
 
 typedef struct StrItem {
     int audio_type;
@@ -22,17 +22,34 @@ typedef struct Audio {
     StrItem combat;
     StrItem victory;
     StrItem level_up;
-    StrItem rest;
 } audio_ <optimize=false>;
 
 typedef struct Actor {
-    int unk;
-    int unk2;
+    int actor_id; // 1 - 7
+    int start_party_member; // 0 no, 1 yes
     char name[18];
-    short unk3;
-    short level;
-    char padding[902];
-    char pad;
+    short unk;
+    int start_level;
+    int unk2[9];
+    // all 0-100
+    char power[100];
+    char strength[100];
+    char intelligence[100];
+    char speed[100];
+    char luck[100];
+    // In the editor any of the 5 curves is a bezier with
+    // 4 control points.
+    // But this would be only 20 elements.
+    // Probably not relevant for the Player, precalculated above
+    int bezier[40];
+
+    // Weapon, Armor, Shield, Helmet, Misc
+    // -1 = no equip
+    uchar equip[5];
+    char magic_learn_level[100]; // 0 - 100
+    char magic_damage[100]; // 0 - 100
+
+    // How is experience and level up handled?
 } actor <optimize=false>;
 
 typedef struct Tile {
@@ -100,10 +117,13 @@ typedef struct Map {
 
 struct RPG {
     char header[30];
-    char version;
+    char version[5];
     int unk;
-    int unk2;
     Audio audio;
+    // When version is < 0.98 audio contains only 11 elements!
+    if (Atof(version) >= 0.98) {
+        StrItem rest;
+    }
     int unk3;
     int unk4;
     char coin_name[21];
@@ -112,8 +132,9 @@ struct RPG {
     short msg_speed;
     short game_options; // bit-field: 1 Window transp, 2 save enabled
     Actor actors[8];
-    char unk7[200];
-    int unk8;
+    // up to item_max items
+    short start_items[100];
+    int start_money;
     int start_map;
     int start_x;
     int start_y;
