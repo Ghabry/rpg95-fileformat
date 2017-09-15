@@ -3,11 +3,13 @@
 // ToDo: Some actor data, structure of map tree
 
 typedef struct StrItem {
-    int audio_type;
+    short panning; // 0 left, 50 middle, 100 right
+    short volume; // 0 - 100
+    short audio_type; // 0 none, 1 WAV, 2 MIDI, 3 CD
+    short frequency; // 0 highest, 500 lowest o.O
     local string t = ReadLine(FTell(), -1, false);
     char text[Strlen(t)];
-    int unk;
-    char unk3;
+    char unk; // has value 10
 } audioitem <optimize=false>;
 
 typedef struct Audio {
@@ -24,6 +26,11 @@ typedef struct Audio {
     StrItem level_up;
 } audio_ <optimize=false>;
 
+typedef struct Point {
+    int x;
+    int y;
+};
+
 typedef struct Actor {
     int actor_id; // 1 - 7
     int start_party_member; // 0 no, 1 yes
@@ -39,9 +46,12 @@ typedef struct Actor {
     char luck[100];
     // In the editor any of the 5 curves is a bezier with
     // 4 control points.
-    // But this would be only 20 elements.
     // Probably not relevant for the Player, precalculated above
-    int bezier[40];
+    Point power_bezier[4];
+    Point strength_bezier[4];
+    Point intelligence_bezier[4];
+    Point speed_bezier[4];
+    Point luck_bezier[4];
 
     // Weapon, Armor, Shield, Helmet, Misc
     // -1 = no equip
@@ -135,17 +145,17 @@ typedef struct Map {
 struct RPG {
     char header[30];
     char version[5];
-    int unk;
     Audio audio;
     // When version is < 0.98 audio contains only 11 elements!
     if (Atof(version) >= 0.98) {
         StrItem rest;
     }
-    int unk3;
-    int unk4;
+    int map_transition;
+    int battle_transition;
+    int battle_transition_2;
     char coin_name[21];
     short item_max;
-    short unk5;
+    short unk;
     short msg_speed;
     short game_options; // bit-field: 1 Window transp, 2 save enabled
     Actor actors[8];
