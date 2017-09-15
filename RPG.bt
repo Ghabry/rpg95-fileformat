@@ -8,8 +8,7 @@ typedef struct StrItem {
     short audio_type; // 0 none, 1 WAV, 2 MIDI, 3 CD
     short frequency; // 0 highest, 500 lowest o.O
     local string t = ReadLine(FTell(), -1, false);
-    char text[Strlen(t)];
-    char unk; // has value 10
+    char text[Strlen(t) + 1]; // terminated by \n
 } audioitem <optimize=false>;
 
 typedef struct Audio {
@@ -64,8 +63,7 @@ typedef struct Actor {
 
 typedef struct Tile {
     local string t = ReadLine(FTell(), -1, false);
-    char text[Strlen(t)];
-    char cr;
+    char text[Strlen(t) + 1]; // terminated by \n
 } tile <optimize=false>;
 
 typedef struct EncounterRate {
