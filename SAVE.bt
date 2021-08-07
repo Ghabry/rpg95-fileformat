@@ -1,0 +1,308 @@
+// Savegame files
+
+// Layout is different to the one in .RPG
+typedef struct AudioItem {
+    int name_ptr; // garbage
+    short panning; // 0 left, 50 middle, 100 right
+    short volume; // 0 - 100
+    short audio_type; // 0 none, 1 WAV, 2 MIDI, 3 CD
+    short frequency; // 0 highest, 500 lowest o.O
+    local string t = ReadLine(FTell(), -1, false);
+    char text[Strlen(t) + 1]; // terminated by \n
+} audioitem <optimize=false>;
+
+typedef struct Audio {
+    AudioItem walking;
+    AudioItem wagon;
+    AudioItem sled;
+    AudioItem boat;
+    AudioItem ship;
+    AudioItem balloon;
+    AudioItem airship;
+    AudioItem coobat_start;
+    AudioItem combat;
+    AudioItem victory;
+    AudioItem level_up;
+    // No version check when loading
+    AudioItem rest;
+} audio_ <optimize=false>;
+
+enum <char> MoveRoute {
+    MoveUp = 0,
+    MoveRight = 1,
+    MoveDown = 2,
+    MoveLeft = 3,
+    TurnUp = 4,
+    TurnRight = 5,
+    TurnDown = 6,
+    TurnLeft = 7,
+    MoveTowardsHero = 8,
+    MoveAwayFromHero = 9,
+    MoveTowardsEvent = 10, // Needs testing ???
+    MoveAwayFromEvent = 11, // ???
+    TurnTowardsHero = 12,
+    TurnAwayFromHero = 13,
+    TurnTowardsEvent = 14, // ???
+    TurnAwayFromEvent = 15, // ???
+    MoveForward = 16,
+    MoveWait = 17,
+    AnimationNormal = 18,
+    AnimationSpinRight = 19,
+    AnimationSpinLeft = 20,
+    AnimationSpinRandom = 21,
+    AnimationSameDirection = 22, // ???
+    AnimationNone = 23,
+    SpriteOpaque = 24,
+    SpriteTransparent = 25,
+    SpriteHidden = 26,
+    Loop = 27, // Moves back and forth?
+    Reverse = 29,
+    ReverseLoop = 30,
+    EndMove = 32
+};
+
+typedef struct MoveField {
+    char size;
+    if (size > 0) {
+        MoveRoute route[size];
+    }
+};
+
+typedef struct EventCondition {
+    int item_bit : 1;
+    int gold_bit : 1;
+    int switch_bit : 1;
+    int party_bit : 1;
+};
+
+enum <char> Trigger {
+    OnAction = 0,
+    OnTouch = 1,
+    AutoRun = 2
+};
+
+enum <char> Layer {
+    Below = 0,
+    Same = 1,
+    Above = 2
+};
+
+enum <int> Layer32 {
+    Below_ = 0,
+    Same_ = 1,
+    Above_ = 2
+};
+
+enum <char> CharType {
+    Walking = 0,
+    Wagon = 1,
+    Sled = 2,
+    Boat = 3,
+    Ship = 4,
+    Ballon = 5,
+    Airship = 6
+};
+
+enum <int> CharType32 {
+    Walking_ = 0,
+    Wagon_ = 1,
+    Sled_ = 2,
+    Boat_ = 3,
+    Ship_ = 4,
+    Ballon_ = 5,
+    Airship_ = 6
+};
+
+enum <char> EventMoveType {
+    DontMove = 0,
+    FollowHero = 1,
+    EvadeHero = 2,
+    Random = 3
+};
+
+enum <char> EventDisplay {
+    DispNormal = 0x19,
+    DispInvisible = 0x1A,
+    DispRemoved = 0x1B
+};
+
+enum <int> EventDisplay32 {
+    DispNormal_ = 0x19,
+    DispInvisible_ = 0x1A,
+    DispRemoved_ = 0x1B
+};
+
+enum <char> AnimationType {
+    AnimNormal = 0x12,
+    AnimLeftTurn = 0x13,
+    AnimRightTurn = 0x14,
+    AnimRandom = 0x15,
+    AnimSameDir = 0x16,
+    AnimNone = 0x17,
+    AnimStop = 0x18
+};
+
+enum <int> AnimationType32 {
+    AnimNormal_ = 0x12,
+    AnimLeftTurn_ = 0x13,
+    AnimRightTurn_ = 0x14,
+    AnimRandom_ = 0x15,
+    AnimSameDir_ = 0x16,
+    AnimNone_ = 0x17,
+    AnimStop_ = 0x18
+};
+
+// Does not match the memory layout, not everything is saved
+struct Character {
+    local int f = ReadInt();
+    // Event Class does not save the vtable-ptr but Character Class does
+    // This allows sharing this struct for both...
+    if (f > 256) {
+        int fn_table_ptr; // useless ptr
+    }
+    int x;
+    int y;
+    int x2; // unk
+    int y2; // unk
+    int unk;
+    short event_id;
+    int direction;
+    int facing;
+    int move_type;
+    int unk2;
+    int actor_or_tile_id; // >= 256 tile_id
+    int unk3;
+    int unk4;
+    int unk5;
+    int unk6;
+    Layer32 layer;
+    int movement_speed;
+    int stop_count;
+    CharType32 char_type;
+    AnimationType32 anim_type;
+    EventDisplay32 visibility;
+    int wait_count;
+    int moveroute_size;
+    int moveroute_cur_idx;
+    int moveroute_overwritten;
+    int moveroute_active;
+    int moveroute_cmds_ptr; // useless pointer
+    if (moveroute_cmds_ptr != 0 && moveroute_size > 0) {
+        MoveRoute moveroute_cmds[moveroute_size];
+    }
+};
+
+// 4 Pages per Event
+struct Event {
+    Character base;
+    int current_cmd_idx;
+    byte active_page_idx;
+    Trigger trigger[4];
+    EventCondition condition[4]; // 4 bits, from LSB
+    EventDisplay evt_disp[4];
+    Layer layer[4];
+    EventMoveType move_type[4];
+    AnimationType anim_type[4];
+    char speed[4];
+    CharType vehicle_type[4];
+    // Conditions of Page 1 are ignored
+    short condition_item[4];
+    char condition_party[4]; // 1 bit per actor, 1st LSB
+    int condition_gold[4];
+    short condition_switch[4];
+    short event_graphic[4];
+    MoveField move_route[4] <optimize=false>;
+};
+
+struct Vehicle {
+    short id;
+    int map_id;
+    int evt_ptr; // useless Event*
+};
+
+
+typedef struct Point {
+    int x;
+    int y;
+};
+
+typedef struct ActorData {
+    short cur_level;
+    short cur_hp;
+    short unk_accessory;
+    short max_hp;
+    short unk;
+    short cur_sp;
+    short max_sp;
+    short cur_def;
+    short cur_atk;
+    short cur_speed;
+    short cur_int;
+    short cur_luck;
+    short cur_def_with_mod;
+    short cur_atk_with_mod;
+    short unk2;
+    int experience;
+    short unk3;
+    short unk4;
+    short unk5;
+    short state;
+    short unk6;
+    char name[18];
+    byte unk7[3];
+    char skill_damage[100];
+    byte unk8;
+    int unk9;
+    int unk10;
+    byte unk11;
+    byte actor_idx;
+    int unk12[2];
+};
+
+struct GameData {
+    int unk[3];
+    int party_members; // max value is 4
+    int unk2[8];
+    ActorData actors[8] <optimize=false>;
+    int item_ptr; // useless
+    int unk3[10]; // is all -1
+    int unk4[210]; // is all 0
+    int money; // twice in savegame
+    int unk5[502]; // is all 0
+};
+
+struct SAVE {
+    char header[30]; // RPG Maker 95
+    char version[5]; // 1.23
+    int cur_map_id;
+    Vehicle vehicles[10];
+    int is_in_vehicle;
+    // TODO Check for NULL
+    local int v = 0;
+    local int i;
+    for (i = 0; i < 10; ++i) {
+        if (vehicles[i].id != 0) {
+            ++v;
+        }
+    }
+    Event vehicle_events[v] <optimize=false>;
+    int num_actors;
+    int num_actors2; // unk
+    byte actor_in_party_idx[8];
+    Character actors[8] <optimize=false>;
+    GameData game_data;
+    short items[100];
+    int money;
+    char switches[128]; // 1024, 1 Bit per Switch
+    Audio audio;
+    AudioItem bgm_playing;
+    int map_transition;
+    int battle_transition;
+    int battle_transition_2;
+    int unk_picture;
+    char unk_picture2[1024];
+    short teleport_targets[100];
+    short teleport_unk;
+    short escape_map_id;
+    int movement_flag;
+} savegame;
