@@ -266,9 +266,9 @@ struct GameData {
     ActorData actors[8] <optimize=false>;
     int item_ptr; // useless
     int unk3[10]; // is all -1
-    int unk4[210]; // is all 0
+    int unk4[211]; // is all 0
     int money; // twice in savegame
-    int unk5[502]; // is all 0
+    int unk5[501]; // is all 0
 };
 
 struct SAVE {

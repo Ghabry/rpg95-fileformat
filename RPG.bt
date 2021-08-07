@@ -147,8 +147,8 @@ struct RPG {
     char header[30];
     char version[5];
     Audio audio;
-    // When version is < 0.98 audio contains only 11 elements!
-    if (Atof(version) >= 0.98) {
+    // When version is < 0.96 audio contains only 11 elements!
+    if (Atof(version) >= 0.96) {
         AudioItem rest;
     }
     int map_transition;
