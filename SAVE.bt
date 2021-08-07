@@ -272,8 +272,12 @@ struct GameData {
 };
 
 struct SAVE {
-    char header[30]; // RPG Maker 95
-    char version[5]; // 1.23
+    local int s = ReadByte();
+    // Old savegames start with cur_map_id directly
+    if (s == 'R') {
+        char header[30]; // RPG Maker 95
+        char version[5]; // 1.23
+    }
     int cur_map_id;
     Vehicle vehicles[10];
     int is_in_vehicle;
