@@ -2,7 +2,7 @@
 
 // ToDo: Some actor data, structure of map tree
 
-typedef struct StrItem {
+typedef struct AudioItem {
     short panning; // 0 left, 50 middle, 100 right
     short volume; // 0 - 100
     short audio_type; // 0 none, 1 WAV, 2 MIDI, 3 CD
@@ -12,17 +12,17 @@ typedef struct StrItem {
 } audioitem <optimize=false>;
 
 typedef struct Audio {
-    StrItem walking;
-    StrItem wagon;
-    StrItem sled;
-    StrItem boat;
-    StrItem ship;
-    StrItem balloon;
-    StrItem airship;
-    StrItem coobat_start;
-    StrItem combat;
-    StrItem victory;
-    StrItem level_up;
+    AudioItem walking;
+    AudioItem wagon;
+    AudioItem sled;
+    AudioItem boat;
+    AudioItem ship;
+    AudioItem balloon;
+    AudioItem airship;
+    AudioItem coobat_start;
+    AudioItem combat;
+    AudioItem victory;
+    AudioItem level_up;
 } audio_ <optimize=false>;
 
 typedef struct Point {
@@ -108,6 +108,9 @@ typedef struct Map {
 
     if (map_type.area == 0) {
         Tile tilemap_names[4] <optimize=false>;
+        // Not implemented:
+        // The tile-ID is lower 11 bit
+        // upper 5 bit (n) are "repeat this tile n times" but the editor never uses this feature
         short tiles[width * height]; // value = tile ID
     
         // Event parsing is tricky, why didn't they use width * height
@@ -146,7 +149,7 @@ struct RPG {
     Audio audio;
     // When version is < 0.98 audio contains only 11 elements!
     if (Atof(version) >= 0.98) {
-        StrItem rest;
+        AudioItem rest;
     }
     int map_transition;
     int battle_transition;

@@ -120,7 +120,7 @@ typedef struct EventCondition {
     int party_bit : 1;
 };
 
-enum <char> StartCondition {
+enum <char> Trigger {
     OnAction = 0,
     OnTouch = 1,
     AutoRun = 2
@@ -151,8 +151,8 @@ enum <char> EventMoveType {
 
 enum <char> EventDisplay {
     DispNormal = 0x19,
-    DispTransparent = 0x1A,
-    DispInvisible = 0x1B
+    DispInvisible = 0x1A,
+    DispRemoved = 0x1B
 };
 
 enum <char> AnimationType {
@@ -167,25 +167,20 @@ enum <char> AnimationType {
 
 struct EVENT {
     char start[12];
-    StartCondition start_cond[4];
-    char unk[4];
-    EventCondition flag[3]; // 4 bits, from LSB
+    Trigger trigger[4];
+    EventCondition flag[4]; // 4 bits, from LSB
     EventDisplay evt_disp[4];
     Layer layer[4];
     EventMoveType move_type[4];
     AnimationType anim_type[4];
     char speed[4];
-    char pad3;
-    CharType type[4];
-    char unk2;
-    short condition_item[3];
-    char unk3;
-    char condition_party[3]; // 1 bit per actor, 1st LSB
-    int condition_gold[3];
-    short unk4[3];
-    short condition_switch[3];
+    CharType vehicle_type[4];
+    short condition_item[4];
+    char condition_party[4]; // 1 bit per actor, 1st LSB
+    int condition_gold[4];
+    short condition_switch[4];
     short event_graphic[4];
-    char unk9[16]; // changes everytime when saved
+    char unk9[16]; // garbage? changes everytime when saved
     int page_size[4];
     int extrasize; // Size of stringlist + moveroutes
     MoveField move_route[4] <optimize=false>;
